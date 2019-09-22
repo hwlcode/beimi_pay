@@ -28,8 +28,9 @@ app.get('/api/pay/wx_pay/wx_login', function (req, res) {
     var router = 'getOpenId';
     var return_uri = encodeURIComponent('http://beimi.welcometo5g.cn/api/pay/wx_pay/') + router;
     var scope = 'snsapi_userinfo';
-    var oauthUrl = '/connect/oauth2/authorize';
-    res.redirect(oauthUrl + '?appid=' + config_1.config.wxappid + '&redirect_uri=' + return_uri + '&response_type=code&scope=' + scope + '&state=STATE#wechat_redirect');
+    var oauthUrl = 'https://open.weixin.qq.com/connect/oauth2/authorize';
+    var url = oauthUrl + '?appid=' + config_1.config.wxappid + '&redirect_uri=' + return_uri + '&response_type=code&scope=' + scope + '&state=STATE#wechat_redirect';
+    res.redirect(url);
 });
 //获取openid返回客户端
 app.get('/api/pay/wx_pay/order/getOpenId', function (req, res) {
