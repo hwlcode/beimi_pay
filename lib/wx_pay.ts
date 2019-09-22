@@ -1,269 +1,169 @@
-// import {OrderModel} from "../models";
+let queryString = require('querystring');
+let crypto = require('crypto');
+let request = require('request');
+let xml2jsparseString = require('xml2js').parseString;
+// 引入项目的配置信息
+import {config} from '../lib/config';
 
-var rp = require('request-promise');
-var crypto = require('crypto');
-var xmlreader = require('xmlreader');
+// wechat 支付类
+export class WechatPay {
 
-const appid = 'wxd21dd0f2b047d9d5';
-const mch_id = '1533316021';
-const notify_url = '/api/wx_pay/notify';
-const key = '998f140e5408a30bb99f528ea8ef8701'; // 如果得到的MD5值相同，但签名失败，可能是商户key不对
+    constructor() {
 
-class WxPay {
-    /**
-     * 支付签名
-     * @param nonceStr 随机字符串
-     * @param prepay_id  prepay_id
-     * @param signType 签名类型
-     * @param timeStamp 时间戳 必段为字符串型
-     * @returns {string}
-     */
-    paysignjs(nonceStr, prepay_id, timeStamp) {
-        var ret = {
-            appid: appid,
-            partnerid: mch_id,
-            prepayid: prepay_id,
-            timestamp: timeStamp,
-            noncestr: nonceStr,
-            package: "Sign=WXPay"  // 这里一定要是这上 app支付必须写死
-        };
-        // 第一步：对参数按照key=value的格式;
-        var string = this.raw(ret);
-        // 第二步：拼接API密钥：
-        string = string + '&key=' + key;
-        var sign = crypto.createHash('md5').update(string, 'utf8').digest('hex');
-        return sign.toUpperCase();
+    }
+
+    getCode(){
+        let url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid='+config.wxappid+'&redirect_uri='+encodeURIComponent(config.notifyUrl)+'&response_type=code&scope=snsapi_base&state=123#wechat_redirect';
+
     }
 
     /**
-     * 预支付签名
-     * @param attach: 名称
-     * @param body: 购买信息
-     * @param nonce_str: 随机字符串
-     * @param out_trade_no: 订单号
-     * @param spbill_create_ip: pv4客户端地址
-     * @param total_fee： 订单总价
-     * @param trade_type：交易类型
-     * @returns {string}
+     * 获取微信统一下单参数
      */
-    paysignjsapi(attach, body, nonce_str, out_trade_no, spbill_create_ip, total_fee, trade_type) {
-        const ret = {
-            appid: appid,
-            attach: attach,
-            body: body,
-            mch_id: mch_id,
-            nonce_str: nonce_str,
-            notify_url: notify_url,
-            out_trade_no: out_trade_no,
-            spbill_create_ip: spbill_create_ip,
-            total_fee: total_fee * 100,
-            trade_type: trade_type
-        };
-        let string = this.raw(ret);
-        string = string + '&key=' + key; //key为在微信商户平台(pay.weixin.qq.com)-->账户设置-->API安全-->密钥设置
-        let sign = crypto.createHash('md5').update(string, 'utf8').digest('hex');
-        return sign.toUpperCase();
+    getUnifiedorderXmlParams(obj) {
+        let body = '<xml> ' +
+            '<appid>' + config.wxappid + '</appid> ' +
+            '<attach>' + obj.attach + '</attach> ' +
+            '<body>' + obj.body + '</body> ' +
+            '<mch_id>' + config.mch_id + '</mch_id> ' +
+            '<nonce_str>' + obj.nonce_str + '</nonce_str> ' +
+            '<notify_url>' + obj.notify_url + '</notify_url>' +
+            '<openid>' + obj.openid + '</openid> ' +
+            '<out_trade_no>' + obj.out_trade_no + '</out_trade_no>' +
+            '<spbill_create_ip>' + obj.spbill_create_ip + '</spbill_create_ip> ' +
+            '<total_fee>' + obj.total_fee + '</total_fee> ' +
+            '<trade_type>' + obj.trade_type + '</trade_type> ' +
+            '<sign>' + obj.sign + '</sign> ' +
+            '</xml>';
+
+        return body;
     }
 
-    // 此处的attach不能为空值 否则微信提示签名错误
-    order(attach, body, out_trade_no, total_fee) {
-        const nonce_str = this.createNonceStr();
-        const timeStamp = this.createTimeStamp();
-        const url = "https://api.mch.weixin.qq.com/pay/unifiedorder";
-        const spbill_create_ip = '61.50.221.43';
-        const trade_type = 'APP';
-        const preSign = this.paysignjsapi(attach, body, nonce_str, out_trade_no, spbill_create_ip, total_fee, trade_type);
-        const self = this;
-
-        return new Promise((resolve, reject) => {
-            let formData = "<xml>";
-            formData += "<appid>" + appid + "</appid>"; // appid
-            formData += "<attach>" + attach + "</attach>"; // 订单标题
-            formData += "<body>" + body + "</body>"; // 订单描述
-            formData += "<mch_id>" + mch_id + "</mch_id>"; // 商户号
-            formData += "<nonce_str>" + nonce_str + "</nonce_str>"; // 随机字符串，不长于32位。
-            formData += "<notify_url>" + notify_url + "</notify_url>"; // 回调地址
-            formData += "<out_trade_no>" + out_trade_no + "</out_trade_no>"; // 订单号
-            formData += "<spbill_create_ip>" + spbill_create_ip + "</spbill_create_ip>"; // IP4地址：客户端地址
-            formData += "<total_fee>" + total_fee * 100 + "</total_fee>"; // 订单总价 单位：分
-            formData += "<trade_type>" + trade_type + "</trade_type>"; // 交易类型
-            formData += "<sign>" + preSign + "</sign>"; // 签名
-            formData += "</xml>";
-
-            rp({
+    /**
+     * 获取微信统一下单的接口数据
+     */
+    getPrepayId(obj) {
+        let that = this;
+        // 生成统一下单接口参数
+        let UnifiedorderParams = {
+            appid: config.wxappid,
+            attach: obj.attach,
+            body: obj.body,
+            mch_id: config.mch_id,
+            nonce_str: this.createNonceStr(),
+            notify_url: obj.notify_url,// 微信付款后的回调地址
+            openid: obj.openid,  //改
+            out_trade_no: obj.out_trade_no,//new Date().getTime(), //订单号
+            spbill_create_ip: obj.spbill_create_ip,
+            total_fee: obj.total_fee,
+            trade_type: 'JSAPI',
+            // sign : getSign(),
+        };
+        // 返回 promise 对象
+        return new Promise(function (resolve, reject) {
+            // 获取 sign 参数
+            UnifiedorderParams['sign'] = that.getSign(UnifiedorderParams);
+            let url = 'https://api.mch.weixin.qq.com/pay/unifiedorder';
+            request.post({
                 url: url,
-                method: 'POST',
-                body: formData
-            }).then(
-                parsedBody => {
-                    xmlreader.read(parsedBody, (err, res) => {
-                        if (err) return console.log(err);
-                        // console.log(parsedBody);
-                        let prepayid = res.xml.prepay_id.text();
-
-                        //签名
-                        let _paySignjs = self.paysignjs(nonce_str, prepayid, timeStamp);
-                        // console.log(_paySignjs);
-                        // 传给app
-                        let args = {
-                            appid: appid,
-                            partnerid: mch_id,
-                            prepayid: prepayid,
-                            timestamp: timeStamp,
-                            noncestr: nonce_str,
-                            package: "Sign=WXPay"
-                        };
-                        // console.log(args);
-                        args['sign'] = _paySignjs;
-
-                        resolve(args);
+                body: JSON.stringify(that.getUnifiedorderXmlParams(UnifiedorderParams))
+            }, function (error, response, body) {
+                let prepay_id = '';
+                if (!error && response.statusCode == 200) {
+                    // 微信返回的数据为 xml 格式， 需要装换为 json 数据， 便于使用
+                    xml2jsparseString(body, {async: true}, function (error, result) {
+                        prepay_id = result.xml.prepay_id[0];
+                        // 放回数组的第一个元素
+                        resolve(prepay_id);
                     });
+                } else {
+                    reject(body);
                 }
-            ).catch(
-                err => {
-                    reject(err);
-                }
-            )
+            });
+        })
+    }
+
+    /**
+     * 获取微信支付的签名
+     */
+    getSign(signParams) {
+        // 按 key 值的ascll 排序
+        let keys = Object.keys(signParams);
+        keys = keys.sort();
+        let newArgs = {};
+        keys.forEach(function (val, key) {
+            if (signParams[val]) {
+                newArgs[val] = signParams[val];
+            }
+        })
+        let string = queryString.stringify(newArgs) + '&key=' + config.wxpaykey;
+        // 生成签名
+        return crypto.createHash('md5').update(queryString.unescape(string), 'utf8').digest("hex").toUpperCase();
+    }
+
+    /**
+     * 微信支付的所有参数
+     * @param req 请求的资源, 获取必要的数据
+     * @returns {{appId: string, timeStamp: Number, nonceStr: *, package: string, signType: string, paySign: *}}
+     */
+    getBrandWCPayParams(obj, callback) {
+        let that = this;
+        let prepay_id_promise = that.getPrepayId(obj);
+        prepay_id_promise.then(function (prepay_id) {
+            // let prepay_id = prepay_id;
+            let wcPayParams = {
+                "appId": config.wxappid,     //公众号名称，由商户传入
+                "timeStamp": new Date().getTime() / 1000 + '',         //时间戳，自1970年以来的秒数
+                "nonceStr": that.createNonceStr(), //随机串
+                // 通过统一下单接口获取
+                "package": "prepay_id=" + prepay_id,
+                "signType": "MD5",         //微信签名方式：
+            };
+
+            wcPayParams['paySign'] = that.getSign(wcPayParams); //微信支付签名
+
+            callback(null, wcPayParams);
+        }, function (error) {
+            callback(error);
         });
     }
 
-    //支付回调通知
-    notify(obj) {
-        var output = "";
-        if (obj.return_code == "SUCCESS") {
-            var reply = {
-                return_code: "SUCCESS",
-                return_msg: "OK"
-            };
-
-        } else {
-            var reply = {
-                return_code: "FAIL",
-                return_msg: "FAIL"
-            };
-        }
-        return output;
-    }
-
-    // 时间戳产生函数
-    createTimeStamp() {
-        return parseInt((new Date().getTime() / 1000).toString(), 10) + '';
-    }
-
     /**
-     * 随机字符串产生函数
-     * @returns {string}
+     * 获取随机的NonceStr
      */
     createNonceStr() {
         return Math.random().toString(36).substr(2, 15);
-    }
+    };
 
-    /**
-     * 拼接字符串
-     */
-    raw(args) {
-        var keys = Object.keys(args);
-        keys = keys.sort()
-        var newArgs = {};
-        keys.forEach(function (key) {
-            newArgs[key] = args[key];
-        });
-        var string = '';
-        for (var k in newArgs) {
-            string += '&' + k + '=' + newArgs[k];
-        }
-        string = string.substr(1);
-        return string;
-    }
-
-    /**
-     * 订单查询
-     * @param out_trade_no 商户订单号
-     * @param nonce_str 随机字符串
-     * @param sign 签名
-     * @returns {string}
-     */
-    queryOrder(out_trade_no) {
-        var url = 'https://api.mch.weixin.qq.com/pay/orderquery';
-        const nonce_str = this.createNonceStr();
-        const sign = this.queryOrderSign(out_trade_no, nonce_str);
-
-        return new Promise((resolve, reject) => {
-            let formData = "<xml>";
-            formData += "<appid>" + appid + "</appid>"; // 应用APPID
-            formData += "<mch_id>" + mch_id + "</mch_id>"; // 商户号
-            formData += "<out_trade_no>" + out_trade_no + "</out_trade_no>"; // 商户订单号
-            formData += "<nonce_str>" + nonce_str + "</nonce_str>"; // 随机字符串。
-            formData += "<sign>" + sign + "</sign>"; // 签名
-            formData += "</xml>";
-
-            rp({
-                url: url,
-                method: 'POST',
-                body: formData
-            }).then(
-                parsedBody => {
-                    xmlreader.read(parsedBody, (err, res) => {
-                        if (err) return console.log(err);
-                        // console.log(parsedBody);
-                        // let date = res.xml.time_end.text();
-                        // date = date.slice(0, 4) + '-' + date.slice(4, 6) + '-' + date.slice(6, 8) + ' ' + date.slice(8, 10) + ':' + date.slice(10, 12) + ':' + date.slice(12, 14);
-                        let args = {
-                            trade_state: res.xml.trade_state.text(),
-                            total_fee: res.xml.total_fee.text(),
-                            fee_type: res.xml.fee_type.text(),
-                            transaction_id: res.xml.transaction_id.text(),
-                            out_trade_no: res.xml.out_trade_no.text(),
-                            time_end: res.xml.time_end.text(),
-                            trade_state_desc: res.xml.trade_state_desc.text()
-                        };
-
-                        // OrderModel.findOneAndUpdate({'sn': out_trade_no}, {
-                        //     $set: {
-                        //         wx_time_end: args['time_end'],
-                        //         transaction_id: args['transaction_id']
-                        //     }
-                        // }, {
-                        //     new: true
-                        // }, (err, data) => {
-                        //     console.log(data);
-                        // });
-
-                        resolve(args);
-                    });
+    //获取微信的 AccessToken openid
+    getAccessToken(code, cb) {
+        let getAccessTokenUrl = "https://api.weixin.qq.com/sns/oauth2/access_token?appid=" + config.wxappid + "&secret=" + config.wxappsecret + "&code=" + code + "&grant_type=authorization_code";
+        request.post({url: getAccessTokenUrl}, function (error, response, body) {
+            if (!error && response.statusCode == 200) {
+                if (40029 == body.errcode) {
+                    cb(error, body);
+                } else {
+                    body = JSON.parse(body);
+                    cb(null, body);
                 }
-            ).catch(
-                err => {
-                    reject(err);
-                }
-            )
+            } else {
+                cb(error);
+            }
         });
-
     }
+
 
     /**
-     * 订单查询签名
-     * @param out_trade_no
-     * @param nonceStr
-     * @returns {string}
+     * 创建订单
      */
-    queryOrderSign(out_trade_no, nonceStr) {
-        // 签名
-        var ret = {
-            appid: appid,
-            mch_id: mch_id,
-            out_trade_no: out_trade_no,
-            nonce_str: nonceStr
-        };
-        // console.log(ret);
-        var string = this.raw(ret);
-        // console.log(string);
-        string = string + '&key=' + key;
-        // console.log(string);
-        var sign = crypto.createHash('md5').update(string, 'utf8').digest('hex');
-        return sign.toUpperCase();
+    createOrder(obj, cb) {
+        this.getBrandWCPayParams(obj, function (error, responseData) {
+            if (error) {
+                cb(error);
+            } else {
+
+                cb(null, responseData);
+            }
+        });
     }
-}
-
-
-export {WxPay}
+};
