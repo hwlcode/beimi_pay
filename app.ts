@@ -28,7 +28,9 @@ app.post('/api/pay/wx_pay/order', (req, res) => {
                 data: json
             })
         }
-    );
+    ).catch(error => {
+        console.log(error)
+    });
 });
 
 app.get('/api/pay/wx_pay/notify', (req, res) => {

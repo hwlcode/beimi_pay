@@ -23,6 +23,8 @@ app.post('/api/pay/wx_pay/order', function (req, res) {
             code: 0,
             data: json
         });
+    }).catch(function (error) {
+        console.log(error);
     });
 });
 app.get('/api/pay/wx_pay/notify', function (req, res) {
