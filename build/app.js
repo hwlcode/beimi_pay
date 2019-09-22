@@ -22,7 +22,7 @@ app.post('/api/pay/wx_pay/order', function (req, res) {
 app.get('/api/pay/wx_pay/notify', function (req, res) {
     res.json({
         code: 0,
-        data: res
+        data: {}
     });
 });
 //router

@@ -27,7 +27,7 @@ app.post('/api/pay/wx_pay/order', (req, res) => {
 app.get('/api/pay/wx_pay/notify', (req, res) => {
     res.json({
         code: 0,
-        data: res
+        data: {}
     });
 });
 
