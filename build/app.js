@@ -10,6 +10,7 @@ var xmlparser = require("express-xml-bodyparser");
 var config_1 = require("./lib/config");
 // const api = new WechatAPI(config.wxappid, config.wxappsecret);
 var app = express();
+var OPENID = null;
 //xmlparser
 app.use(xmlparser());
 app.use(express.static('./public'));
@@ -25,11 +26,12 @@ app.all('*', function (req, res, next) {
 // 第一步：用户同意授权，获取code
 app.get('/api/pay/wx_pay/wx_login', function (req, res) {
     // 这是编码后的地址
-    var router = 'getOpenId';
-    var return_uri = encodeURIComponent('http://beimi.welcometo5g.cn/api/pay/wx_pay/') + router;
+    var router = '/step/pay';
+    var return_uri = encodeURIComponent('http://beimi.welcometo5g.cn/#') + router;
     var scope = 'snsapi_userinfo';
     var oauthUrl = 'https://open.weixin.qq.com/connect/oauth2/authorize';
     var url = oauthUrl + '?appid=' + config_1.config.wxappid + '&redirect_uri=' + return_uri + '&response_type=code&scope=' + scope + '&state=STATE#wechat_redirect';
+    console.log(url);
     res.json({
         status: 200,
         data: url,
@@ -42,11 +44,12 @@ app.get('/api/pay/wx_pay/getOpenId', function (req, res) {
     //openid
     pay.getAccessToken(code, function (err, data) {
         console.log(data);
-        res.json(data);
+        OPENID = data.openid;
+        // res.json(data);
     });
 });
 app.get('/api/pay/wx_pay/order', function (req, res) {
-    var openid = req.query.openid;
+    var openid = OPENID;
     var pay = new wx_pay_1.WechatPay();
     pay.createOrder({
         openid: openid,
