@@ -33,11 +33,11 @@ app.all('*', function (req, res, next) {
 });
 if (process.env.NODE_ENV === 'production') {
     app.listen(8088, 'localhost', function () {
-        console.log('app is running at pro http://localhost:8000');
+        console.log('app is running at pro http://localhost:8088');
     });
 }
 else {
     app.listen(5271, 'localhost', function () {
-        console.log('app is running at dev http://localhost:9527');
+        console.log('app is running at dev http://localhost:5271');
     });
 }
