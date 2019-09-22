@@ -27,19 +27,22 @@ app.all('*', function (req, res, next) {
 });
 
 // 第一步：用户同意授权，获取code
-app.get('/api/pay/wx_pay/wx_login', (req,res) => {
+app.get('/api/pay/wx_pay/wx_login', (req, res) => {
     // 这是编码后的地址
     let router = 'getOpenId';
     let return_uri = encodeURIComponent('http://beimi.welcometo5g.cn/api/pay/wx_pay/') + router;
     let scope = 'snsapi_userinfo';
     let oauthUrl = 'https://open.weixin.qq.com/connect/oauth2/authorize';
-    let url = oauthUrl + '?appid='+config.wxappid+'&redirect_uri='+return_uri+'&response_type=code&scope='+scope+'&state=STATE#wechat_redirect';
-    console.log(url);
-    res.redirect(url);
+    let url = oauthUrl + '?appid=' + config.wxappid + '&redirect_uri=' + return_uri + '&response_type=code&scope=' + scope + '&state=STATE#wechat_redirect';
+
+    res.json({
+        status: 200,
+        data: url,
+    });
 });
 
 //获取openid返回客户端
-app.get('/api/pay/wx_pay/order/getOpenId', function (req, res) {
+app.get('/api/pay/wx_pay/getOpenId', function (req, res) {
     let code = req.query.code;
     let pay = new WechatPay();
     //openid

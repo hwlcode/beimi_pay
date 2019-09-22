@@ -30,11 +30,13 @@ app.get('/api/pay/wx_pay/wx_login', function (req, res) {
     var scope = 'snsapi_userinfo';
     var oauthUrl = 'https://open.weixin.qq.com/connect/oauth2/authorize';
     var url = oauthUrl + '?appid=' + config_1.config.wxappid + '&redirect_uri=' + return_uri + '&response_type=code&scope=' + scope + '&state=STATE#wechat_redirect';
-    console.log(url);
-    res.redirect(url);
+    res.json({
+        status: 200,
+        data: url,
+    });
 });
 //获取openid返回客户端
-app.get('/api/pay/wx_pay/order/getOpenId', function (req, res) {
+app.get('/api/pay/wx_pay/getOpenId', function (req, res) {
     var code = req.query.code;
     var pay = new wx_pay_1.WechatPay();
     //openid
