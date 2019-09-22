@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    //目标转化为es5
+    "target": "es5",
+    //采用commonjs模块依赖
+    "module": "commonjs",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    //输出目录
+    "outDir": "build",
+    //支持语言
+    "lib": [
+      "es6"
+    ]
+  },
+  //排除目录
+  "exclude": [
+    "node_modules"
+  ]
+}
