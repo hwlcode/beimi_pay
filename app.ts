@@ -8,6 +8,13 @@ const wxPay = new WxPay();
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 
+//router
+app.all('*', function (req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Content-Type");
+    next();
+});
+
 app.post('/api/pay/wx_pay/order', (req, res) => {
     var attach = req.body.attach; // 单标题
     var body = req.body.body; // 支付订单描述
@@ -29,13 +36,6 @@ app.get('/api/pay/wx_pay/notify', (req, res) => {
         code: 0,
         data: {}
     });
-});
-
-//router
-app.all('*', function (req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Content-Type");
-    next();
 });
 
 if (process.env.NODE_ENV === 'production') {

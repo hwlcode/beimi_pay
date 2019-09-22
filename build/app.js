@@ -7,6 +7,12 @@ var app = express();
 var wxPay = new wx_pay_1.WxPay();
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+//router
+app.all('*', function (req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Content-Type");
+    next();
+});
 app.post('/api/pay/wx_pay/order', function (req, res) {
     var attach = req.body.attach; // 单标题
     var body = req.body.body; // 支付订单描述
@@ -24,12 +30,6 @@ app.get('/api/pay/wx_pay/notify', function (req, res) {
         code: 0,
         data: {}
     });
-});
-//router
-app.all('*', function (req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Content-Type");
-    next();
 });
 if (process.env.NODE_ENV === 'production') {
     app.listen(8088, 'localhost', function () {
