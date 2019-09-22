@@ -34,6 +34,7 @@ app.get('/api/pay/wx_pay/wx_login', (req,res) => {
     let scope = 'snsapi_userinfo';
     let oauthUrl = 'https://open.weixin.qq.com/connect/oauth2/authorize';
     let url = oauthUrl + '?appid='+config.wxappid+'&redirect_uri='+return_uri+'&response_type=code&scope='+scope+'&state=STATE#wechat_redirect';
+    console.log(url);
     res.redirect(url);
 });
 
