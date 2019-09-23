@@ -79,23 +79,6 @@ var WechatPay = /** @class */ (function () {
         });
     };
     /**
-     * 获取微信支付的签名
-     */
-    WechatPay.prototype.getSign = function (signParams) {
-        // 按 key 值的ascll 排序
-        var keys = Object.keys(signParams);
-        keys = keys.sort();
-        var newArgs = {};
-        keys.forEach(function (val, key) {
-            if (signParams[val]) {
-                newArgs[val] = signParams[val];
-            }
-        });
-        var string = queryString.stringify(newArgs) + '&key=' + config_1.config.wxpaykey;
-        // 生成签名
-        return crypto.createHash('md5').update(queryString.unescape(string), 'utf8').digest("hex").toUpperCase();
-    };
-    /**
      * 微信支付的所有参数
      * @param req 请求的资源, 获取必要的数据
      * @returns {{appId: string, timeStamp: Number, nonceStr: *, package: string, signType: string, paySign: *}}
@@ -120,13 +103,8 @@ var WechatPay = /** @class */ (function () {
         });
     };
     /**
-     * 获取随机的NonceStr
+     * 获取微信的 AccessToken openid
      */
-    WechatPay.prototype.createNonceStr = function () {
-        return Math.random().toString(36).substr(2, 15);
-    };
-    ;
-    //获取微信的 AccessToken openid
     WechatPay.prototype.getAccessToken = function (code, cb) {
         var getAccessTokenUrl = "https://api.weixin.qq.com/sns/oauth2/access_token?appid=" + config_1.config.wxappid + "&secret=" + config_1.config.wxappsecret + "&code=" + code + "&grant_type=authorization_code";
         request.post({ url: getAccessTokenUrl }, function (error, response, body) {
@@ -143,6 +121,30 @@ var WechatPay = /** @class */ (function () {
                 cb(error);
             }
         });
+    };
+    /**
+     * 工具方法：获取随机的NonceStr
+     */
+    WechatPay.prototype.createNonceStr = function () {
+        return Math.random().toString(36).substr(2, 15);
+    };
+    ;
+    /**
+     * 工具方法： 获取微信支付的签名
+     */
+    WechatPay.prototype.getSign = function (signParams) {
+        // 按 key 值的ascll 排序
+        var keys = Object.keys(signParams);
+        keys = keys.sort();
+        var newArgs = {};
+        keys.forEach(function (val, key) {
+            if (signParams[val]) {
+                newArgs[val] = signParams[val];
+            }
+        });
+        var string = queryString.stringify(newArgs) + '&key=' + config_1.config.wxpaykey;
+        // 生成签名
+        return crypto.createHash('md5').update(queryString.unescape(string), 'utf8').digest("hex").toUpperCase();
     };
     /**
      * 创建订单

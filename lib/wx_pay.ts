@@ -82,23 +82,7 @@ export class WechatPay {
         })
     }
 
-    /**
-     * 获取微信支付的签名
-     */
-    getSign(signParams) {
-        // 按 key 值的ascll 排序
-        let keys = Object.keys(signParams);
-        keys = keys.sort();
-        let newArgs = {};
-        keys.forEach(function (val, key) {
-            if (signParams[val]) {
-                newArgs[val] = signParams[val];
-            }
-        })
-        let string = queryString.stringify(newArgs) + '&key=' + config.wxpaykey;
-        // 生成签名
-        return crypto.createHash('md5').update(queryString.unescape(string), 'utf8').digest("hex").toUpperCase();
-    }
+
 
     /**
      * 微信支付的所有参数
@@ -128,13 +112,8 @@ export class WechatPay {
     }
 
     /**
-     * 获取随机的NonceStr
+     * 获取微信的 AccessToken openid
      */
-    createNonceStr() {
-        return Math.random().toString(36).substr(2, 15);
-    };
-
-    //获取微信的 AccessToken openid
     getAccessToken(code, cb) {
         let getAccessTokenUrl = "https://api.weixin.qq.com/sns/oauth2/access_token?appid=" + config.wxappid + "&secret=" + config.wxappsecret + "&code=" + code + "&grant_type=authorization_code";
         request.post({url: getAccessTokenUrl}, function (error, response, body) {
@@ -151,6 +130,30 @@ export class WechatPay {
         });
     }
 
+    /**
+     * 工具方法：获取随机的NonceStr
+     */
+    createNonceStr() {
+        return Math.random().toString(36).substr(2, 15);
+    };
+
+    /**
+     * 工具方法： 获取微信支付的签名
+     */
+    getSign(signParams) {
+        // 按 key 值的ascll 排序
+        let keys = Object.keys(signParams);
+        keys = keys.sort();
+        let newArgs = {};
+        keys.forEach(function (val, key) {
+            if (signParams[val]) {
+                newArgs[val] = signParams[val];
+            }
+        })
+        let string = queryString.stringify(newArgs) + '&key=' + config.wxpaykey;
+        // 生成签名
+        return crypto.createHash('md5').update(queryString.unescape(string), 'utf8').digest("hex").toUpperCase();
+    }
 
     /**
      * 创建订单
@@ -160,7 +163,6 @@ export class WechatPay {
             if (error) {
                 cb(error);
             } else {
-
                 cb(null, responseData);
             }
         });

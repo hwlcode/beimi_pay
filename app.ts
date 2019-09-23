@@ -1,15 +1,11 @@
-// import {config} from './lib/config';
-// import {WechatAPI} from 'wechat-api';
-
 //引入统一下单的api
 import {WechatPay} from './lib/wx_pay';
+import {Wx_pay_scan_qr} from './lib/wx_pay_scan_qr';
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import * as xmlparser from 'express-xml-bodyparser';
-import {config} from "./lib/config";
 
-// const api = new WechatAPI(config.wxappid, config.wxappsecret);
-
+const qr_image = require("qr-image");
 const app = express();
 
 //xmlparser
@@ -36,7 +32,7 @@ app.get('/api/pay/wx_pay/getOpenId', function (req, res) {
         res.json(data);
     })
 });
-
+// 创建公众号订单
 app.get('/api/pay/wx_pay/order', function (req, res) {
     let openid = req.query.openid;
     let attach = req.query.attach;
@@ -60,8 +56,7 @@ app.get('/api/pay/wx_pay/order', function (req, res) {
         res.json(responseData); /*签名字段*/
     });
 });
-
-
+// 公众号订单回调
 app.get('/api/pay/wx_pay/notifyUrl', function (req, res) {
     let pay = new WechatPay();
     let notifyObj = req.body.xml;
@@ -75,6 +70,45 @@ app.get('/api/pay/wx_pay/notifyUrl', function (req, res) {
     console.log(pay.getSign(signObj));
     console.log('--------------------------');
     console.log(req.body.xml.sign[0]);
+});
+
+// 生成二维码链接
+app.get('/api/pay/wx_pay/create_scanQR', (req, res) => {
+    let pay = new Wx_pay_scan_qr();
+    let spbill_create_ip = req.connection.remoteAddress.replace(/::ffff:/, '')
+
+    let attach = req.query.attach || 'test';
+    let body = req.query.body || 'ddd';
+    let out_trade_no = req.query.out_trade_no || '2222';
+    let total_fee = req.query.total_fee || 0.1;
+
+    pay.createScanQR({
+        attach: attach,
+        body: body,
+        out_trade_no: out_trade_no,
+        total_fee: total_fee,
+        spbill_create_ip: spbill_create_ip
+    }).then(data => {
+        let code = qr_image.image(data['code_url'], {type: 'png'});
+        res.setHeader('Content-type', 'image/png'); //sent qr image to client side
+        code.pipe(res);
+    });
+});
+
+// 扫码支付成功后回调
+app.get('/api/pay/wx_pay/scanQR/notifyUrl', function (req, res) {
+    // let pay = new WechatPay();
+    //     // let notifyObj = req.body.xml;
+    //     // let signObj = {};
+    //     //
+    //     // for (let attr in notifyObj) {
+    //     //     if (attr != 'sign') {
+    //     //         signObj[attr] = notifyObj[attr][0]
+    //     //     }
+    //     // }
+    //     // console.log(pay.getSign(signObj));
+    //     // console.log('--------------------------');
+    //     // console.log(req.body.xml.sign[0]);
 });
 
 app.listen(5271, function () {
