@@ -7,7 +7,6 @@ var wx_pay_1 = require("./lib/wx_pay");
 var express = require("express");
 var bodyParser = require("body-parser");
 var xmlparser = require("express-xml-bodyparser");
-var config_1 = require("./lib/config");
 // const api = new WechatAPI(config.wxappid, config.wxappsecret);
 var app = express();
 //xmlparser
@@ -22,19 +21,6 @@ app.all('*', function (req, res, next) {
     res.header("Access-Control-Allow-Headers", "Content-Type");
     next();
 });
-// 第一步：用户同意授权，获取code
-app.get('/api/pay/wx_pay/wx_login', function (req, res) {
-    // 这是编码后的地址
-    var return_uri = encodeURIComponent('http://beimi.welcometo5g.cn/#/step/pay');
-    var scope = 'snsapi_userinfo';
-    var oauthUrl = 'https://open.weixin.qq.com/connect/oauth2/authorize';
-    var url = oauthUrl + '?appid=' + config_1.config.wxappid + '&redirect_uri=' + return_uri + '&response_type=code&scope=' + scope + '&state=STATE#wechat_redirect';
-    // console.log(url);
-    res.json({
-        status: 200,
-        data: url,
-    });
-});
 //获取openid返回客户端
 app.get('/api/pay/wx_pay/getOpenId', function (req, res) {
     var code = req.query.code;
@@ -47,19 +33,23 @@ app.get('/api/pay/wx_pay/getOpenId', function (req, res) {
 });
 app.get('/api/pay/wx_pay/order', function (req, res) {
     var openid = req.query.openid;
+    var attach = req.query.attach;
+    var body = req.query.body;
+    var total_fee = req.query.total_fee;
     var pay = new wx_pay_1.WechatPay();
     pay.createOrder({
         openid: openid,
         notify_url: 'http://beimi.welcometo5g.cn/api/pay/wx_pay/notifyUrl',
         out_trade_no: new Date().getTime(),
-        attach: '名称',
-        body: '购买信息',
-        total_fee: '0.1',
+        attach: attach,
+        body: body,
+        total_fee: total_fee,
         spbill_create_ip: req.connection.remoteAddress.replace(/::ffff:/, ''),
     }, function (error, responseData) {
         if (error) {
             console.log(error);
         }
+        console.log(responseData);
         res.json(responseData); /*签名字段*/
     });
 });
@@ -77,5 +67,5 @@ app.get('/api/pay/wx_pay/notifyUrl', function (req, res) {
     console.log(req.body.xml.sign[0]);
 });
 app.listen(5271, function () {
-    console.log('api is running at http://localhoust:5271');
+    console.log('api is running at http://localhost:5271');
 });
