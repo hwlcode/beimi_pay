@@ -108,7 +108,7 @@ app.get('/api/pay/wx_pay/create_h5_pay', function (req, res) {
     var spbill_create_ip = req.connection.remoteAddress.replace(/::ffff:/, '');
     var attach = req.query.attach || 'test';
     var body = req.query.body || 'ddd';
-    var out_trade_no = req.query.out_trade_no || '222201';
+    var out_trade_no = req.query.out_trade_no || new Date().getTime();
     var total_fee = req.query.total_fee || 0.1;
     pay.createH5Pay({
         attach: attach,
