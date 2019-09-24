@@ -6,7 +6,9 @@ var request = require('request');
 var xml2jsparseString = require('xml2js').parseString;
 // 引入项目的配置信息
 var config_1 = require("../lib/config");
-// wechat 支付类
+/**
+ * 微信公众号支付
+ */
 var WechatPay = /** @class */ (function () {
     function WechatPay() {
     }

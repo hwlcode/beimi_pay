@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 //引入统一下单的api
 var wx_pay_1 = require("./lib/wx_pay");
 var wx_pay_scan_qr_1 = require("./lib/wx_pay_scan_qr");
+var wx_pay_h5_1 = require("./lib/wx_pay_h5");
 var express = require("express");
 var bodyParser = require("body-parser");
 var xmlparser = require("express-xml-bodyparser");
@@ -89,6 +90,37 @@ app.get('/api/pay/wx_pay/create_scanQR', function (req, res) {
 });
 // 扫码支付成功后回调
 app.get('/api/pay/wx_pay/scanQR/notifyUrl', function (req, res) {
+    // let pay = new WechatPay();
+    //     // let notifyObj = req.body.xml;
+    //     // let signObj = {};
+    //     //
+    //     // for (let attr in notifyObj) {
+    //     //     if (attr != 'sign') {
+    //     //         signObj[attr] = notifyObj[attr][0]
+    //     //     }
+    //     // }
+    //     // console.log(pay.getSign(signObj));
+    //     // console.log('--------------------------');
+    //     // console.log(req.body.xml.sign[0]);
+});
+app.get('/api/pay/wx_pay/create_h5_pay', function (req, res) {
+    var pay = new wx_pay_h5_1.Wx_pay_h5();
+    var spbill_create_ip = req.connection.remoteAddress.replace(/::ffff:/, '');
+    var attach = req.query.attach || 'test';
+    var body = req.query.body || 'ddd';
+    var out_trade_no = req.query.out_trade_no || '222201';
+    var total_fee = req.query.total_fee || 0.1;
+    pay.createH5Pay({
+        attach: attach,
+        body: body,
+        out_trade_no: out_trade_no,
+        total_fee: total_fee,
+        spbill_create_ip: spbill_create_ip
+    }).then(function (data) {
+        res.json(data);
+    });
+});
+app.get('/api/pay/wx_pay/h5pay/notifyUrl', function (req, res) {
     // let pay = new WechatPay();
     //     // let notifyObj = req.body.xml;
     //     // let signObj = {};

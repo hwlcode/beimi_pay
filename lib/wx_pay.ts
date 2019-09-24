@@ -5,7 +5,9 @@ let xml2jsparseString = require('xml2js').parseString;
 // 引入项目的配置信息
 import {config} from '../lib/config';
 
-// wechat 支付类
+/**
+ * 微信公众号支付
+ */
 export class WechatPay {
 
     constructor() {
@@ -47,7 +49,7 @@ export class WechatPay {
             mch_id: config.mch_id,
             nonce_str: this.createNonceStr(),
             notify_url: obj.notify_url,// 微信付款后的回调地址
-            openid: obj.openid,  //改
+            openid: obj.openid,
             out_trade_no: obj.out_trade_no,//new Date().getTime(), //订单号
             spbill_create_ip: obj.spbill_create_ip,
             total_fee: obj.total_fee * 100,

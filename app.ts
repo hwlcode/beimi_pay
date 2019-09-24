@@ -1,6 +1,7 @@
 //引入统一下单的api
 import {WechatPay} from './lib/wx_pay';
 import {Wx_pay_scan_qr} from './lib/wx_pay_scan_qr';
+import {Wx_pay_h5} from "./lib/wx_pay_h5";
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import * as xmlparser from 'express-xml-bodyparser';
@@ -32,6 +33,7 @@ app.get('/api/pay/wx_pay/getOpenId', function (req, res) {
         res.json(data);
     })
 });
+
 // 创建公众号订单
 app.get('/api/pay/wx_pay/order', function (req, res) {
     let openid = req.query.openid;
@@ -56,6 +58,7 @@ app.get('/api/pay/wx_pay/order', function (req, res) {
         res.json(responseData); /*签名字段*/
     });
 });
+
 // 公众号订单回调
 app.get('/api/pay/wx_pay/notifyUrl', function (req, res) {
     let pay = new WechatPay();
@@ -97,6 +100,41 @@ app.get('/api/pay/wx_pay/create_scanQR', (req, res) => {
 
 // 扫码支付成功后回调
 app.get('/api/pay/wx_pay/scanQR/notifyUrl', function (req, res) {
+    // let pay = new WechatPay();
+    //     // let notifyObj = req.body.xml;
+    //     // let signObj = {};
+    //     //
+    //     // for (let attr in notifyObj) {
+    //     //     if (attr != 'sign') {
+    //     //         signObj[attr] = notifyObj[attr][0]
+    //     //     }
+    //     // }
+    //     // console.log(pay.getSign(signObj));
+    //     // console.log('--------------------------');
+    //     // console.log(req.body.xml.sign[0]);
+});
+
+app.get('/api/pay/wx_pay/create_h5_pay', (req, res) => {
+    let pay = new Wx_pay_h5();
+    let spbill_create_ip = req.connection.remoteAddress.replace(/::ffff:/, '')
+
+    let attach = req.query.attach || 'test';
+    let body = req.query.body || 'ddd';
+    let out_trade_no = req.query.out_trade_no || '222201';
+    let total_fee = req.query.total_fee || 0.1;
+
+    pay.createH5Pay({
+        attach: attach,
+        body: body,
+        out_trade_no: out_trade_no,
+        total_fee: total_fee,
+        spbill_create_ip: spbill_create_ip
+    }).then(data => {
+        res.json(data);
+    });
+});
+
+app.get('/api/pay/wx_pay/h5pay/notifyUrl', function (req, res) {
     // let pay = new WechatPay();
     //     // let notifyObj = req.body.xml;
     //     // let signObj = {};
