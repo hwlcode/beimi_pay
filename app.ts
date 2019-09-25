@@ -82,39 +82,47 @@ app.get('/api/pay/wx_pay/public/orderQuery', (req, res) => {
     let pay = new WechatPay();
     pay.orderQuery({out_trade_no: out_trade_no}).then(data => {
         // console.log(data);
-        let result_code = data['result_code'][0];
-        if (result_code == 'SUCCESS') {
-            // 订单存在
-            let trade_state = data['trade_state'][0];
-            if (trade_state == 'SUCCESS') {
-                // 交易成功
+        if(data['return_code'][0] == 'FAIL'){
+            res.json({
+                code: 1001,
+                status: 'FAIL',
+                msg: data['return_msg'][0]
+            });
+        }else{
+            let result_code = data['result_code'][0];
+            if (result_code == 'SUCCESS') {
+                // 订单存在
+                let trade_state = data['trade_state'][0];
+                if (trade_state == 'SUCCESS') {
+                    // 交易成功
+                    res.json({
+                        code: 200,
+                        status: 'SUCCESS',
+                        msg: data['trade_state_desc'][0],
+                        data: {
+                            transaction_id: data['transaction_id'][0],
+                            out_trade_no: data['out_trade_no'][0],
+                            time_end: data['time_end'][0]
+                        }
+                    });
+                } else {
+                    // 交易失败
+                    let trade_state_desc = data['trade_state_desc'][0];
+                    res.json({
+                        code: 1001,
+                        status: 'FAIL',
+                        msg: trade_state_desc
+                    });
+                }
+            } else if (result_code == 'FAIL') {
+                // 订单不存在
+                let err_code_des = data['err_code_des'][0];
                 res.json({
-                    code: 200,
-                    status: 'SUCCESS',
-                    msg: data['trade_state_desc'][0],
-                    data: {
-                        transaction_id: data['transaction_id'][0],
-                        out_trade_no: data['out_trade_no'][0],
-                        time_end: data['time_end'][0]
-                    }
-                });
-            } else {
-                // 交易失败
-                let trade_state_desc = data['trade_state_desc'][0];
-                res.json({
-                    code: 1001,
-                    status: 'FAIL',
-                    msg: trade_state_desc
+                    code: 1000,
+                    status: result_code,
+                    msg: err_code_des
                 });
             }
-        } else if (result_code == 'FAIL') {
-            // 订单不存在
-            let err_code_des = data['err_code_des'][0];
-            res.json({
-                code: 1000,
-                status: result_code,
-                msg: err_code_des
-            });
         }
     }, error => {
         console.log(error);
@@ -169,39 +177,47 @@ app.get('/api/pay/wx_pay/scanQR/orderQuery', (req, res) => {
     let pay = new Wx_pay_scan_qr();
     pay.orderQuery({out_trade_no: out_trade_no}).then(data => {
         // console.log(data);
-        let result_code = data['result_code'][0];
-        if (result_code == 'SUCCESS') {
-            // 订单存在
-            let trade_state = data['trade_state'][0];
-            if (trade_state == 'SUCCESS') {
-                // 交易成功
+        if(data['return_code'][0] == 'FAIL'){
+            res.json({
+                code: 1001,
+                status: 'FAIL',
+                msg: data['return_msg'][0]
+            });
+        }else{
+            let result_code = data['result_code'][0];
+            if (result_code == 'SUCCESS') {
+                // 订单存在
+                let trade_state = data['trade_state'][0];
+                if (trade_state == 'SUCCESS') {
+                    // 交易成功
+                    res.json({
+                        code: 200,
+                        status: 'SUCCESS',
+                        msg: data['trade_state_desc'][0],
+                        data: {
+                            transaction_id: data['transaction_id'][0],
+                            out_trade_no: data['out_trade_no'][0],
+                            time_end: data['time_end'][0]
+                        }
+                    });
+                } else {
+                    // 交易失败
+                    let trade_state_desc = data['trade_state_desc'][0];
+                    res.json({
+                        code: 1001,
+                        status: 'FAIL',
+                        msg: trade_state_desc
+                    });
+                }
+            } else if (result_code == 'FAIL') {
+                // 订单不存在
+                let err_code_des = data['err_code_des'][0];
                 res.json({
-                    code: 200,
-                    status: 'SUCCESS',
-                    msg: data['trade_state_desc'][0],
-                    data: {
-                        transaction_id: data['transaction_id'][0],
-                        out_trade_no: data['out_trade_no'][0],
-                        time_end: data['time_end'][0]
-                    }
-                });
-            } else {
-                // 交易失败
-                let trade_state_desc = data['trade_state_desc'][0];
-                res.json({
-                    code: 1001,
-                    status: 'FAIL',
-                    msg: trade_state_desc
+                    code: 1000,
+                    status: result_code,
+                    msg: err_code_des
                 });
             }
-        } else if (result_code == 'FAIL') {
-            // 订单不存在
-            let err_code_des = data['err_code_des'][0];
-            res.json({
-                code: 1000,
-                status: result_code,
-                msg: err_code_des
-            });
         }
     }, error => {
         console.log(error);
@@ -217,7 +233,7 @@ app.get('/api/pay/wx_pay/create_h5_pay', (req, res) => {
 
     let attach = req.query.attach || 'test';
     let body = req.query.body || 'ddd';
-    let out_trade_no = req.query.out_trade_no || new Date().getTime();
+    let out_trade_no = req.query.out_trade_no || 'BM1569416408962';
     let total_fee = req.query.total_fee || 0.1;
 
     pay.createH5Pay({
@@ -233,15 +249,15 @@ app.get('/api/pay/wx_pay/create_h5_pay', (req, res) => {
 // h5支付： 支付成功回调
 app.post('/api/pay/wx_pay/h5pay/notifyUrl', function (req, res) {
     let notifyObj = req.body.xml;
-    console.log('h5 notify：');
-    console.log(notifyObj);
-    if (notifyObj.result_code[0] == 'SUCCESS') {
+    // console.log('h5 notify：');
+    // console.log(notifyObj);
+    if (notifyObj.return_code[0] == 'SUCCESS') {
         let xml = '<xml>';
         xml += '<return_code><![CDATA[SUCCESS]]></return_code>';
         xml += '<return_msg><![CDATA[OK]]></return_msg>';
         xml += '</xml>';
         res.send(xml);
-    } else if (notifyObj.result_code[0] == 'FAIL') {
+    } else if (notifyObj.return_code[0] == 'FAIL') {
         let xml = '<xml>';
         xml += '<return_code><![CDATA[SUCCESS]]></return_code>';
         xml += '<return_msg><![CDATA[FAIL]]></return_msg>';
@@ -251,44 +267,52 @@ app.post('/api/pay/wx_pay/h5pay/notifyUrl', function (req, res) {
 });
 // h5支付： 订单查询
 app.get('/api/pay/wx_pay/orderQuery', (req, res) => {
-    let out_trade_no = req.query.out_trade_no;
+    let out_trade_no = req.query.out_trade_no || 'BM1569416408962';
     let pay = new Wx_pay_h5();
     pay.orderQuery({out_trade_no: out_trade_no}).then(data => {
         console.log('order query：');
         console.log(data);
-        let result_code = data['result_code'][0];
-        if (result_code == 'SUCCESS') {
-            // 订单存在
-            let trade_state = data['trade_state'][0];
-            if (trade_state == 'SUCCESS') {
-                // 交易成功
+        if(data['return_code'][0] == 'FAIL'){
+            res.json({
+                code: 1001,
+                status: 'FAIL',
+                msg: data['return_msg'][0]
+            });
+        }else{
+            let result_code = data['result_code'][0];
+            if (result_code == 'SUCCESS') {
+                // 订单存在
+                let trade_state = data['trade_state'][0];
+                if (trade_state == 'SUCCESS') {
+                    // 交易成功
+                    res.json({
+                        code: 200,
+                        status: 'SUCCESS',
+                        msg: data['trade_state_desc'][0],
+                        data: {
+                            transaction_id: data['transaction_id'][0],
+                            out_trade_no: data['out_trade_no'][0],
+                            time_end: data['time_end'][0]
+                        }
+                    });
+                } else {
+                    // 交易失败
+                    let trade_state_desc = data['trade_state_desc'][0];
+                    res.json({
+                        code: 1001,
+                        status: 'FAIL',
+                        msg: trade_state_desc
+                    });
+                }
+            } else if (result_code == 'FAIL') {
+                // 订单不存在
+                let err_code_des = data['err_code_des'][0];
                 res.json({
-                    code: 200,
-                    status: 'SUCCESS',
-                    msg: data['trade_state_desc'][0],
-                    data: {
-                        transaction_id: data['transaction_id'][0],
-                        out_trade_no: data['out_trade_no'][0],
-                        time_end: data['time_end'][0]
-                    }
-                });
-            } else {
-                // 交易失败
-                let trade_state_desc = data['trade_state_desc'][0];
-                res.json({
-                    code: 1001,
-                    status: 'FAIL',
-                    msg: trade_state_desc
+                    code: 1000,
+                    status: result_code,
+                    msg: err_code_des
                 });
             }
-        } else if (result_code == 'FAIL') {
-            // 订单不存在
-            let err_code_des = data['err_code_des'][0];
-            res.json({
-                code: 1000,
-                status: result_code,
-                msg: err_code_des
-            });
         }
     }, error => {
         console.log(error);
