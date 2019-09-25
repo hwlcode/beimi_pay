@@ -233,7 +233,7 @@ app.get('/api/pay/wx_pay/create_h5_pay', (req, res) => {
 
     let attach = req.query.attach || 'test';
     let body = req.query.body || 'ddd';
-    let out_trade_no = req.query.out_trade_no || 'BM1569416408962';
+    let out_trade_no = req.query.out_trade_no || 'BM1569416408963';
     let total_fee = req.query.total_fee || 0.1;
 
     pay.createH5Pay({
@@ -267,7 +267,7 @@ app.post('/api/pay/wx_pay/h5pay/notifyUrl', function (req, res) {
 });
 // h5支付： 订单查询
 app.get('/api/pay/wx_pay/orderQuery', (req, res) => {
-    let out_trade_no = req.query.out_trade_no || 'BM1569416408962';
+    let out_trade_no = req.query.out_trade_no || 'BM1569416408963';
     let pay = new Wx_pay_h5();
     pay.orderQuery({out_trade_no: out_trade_no}).then(data => {
         console.log('order query：');
