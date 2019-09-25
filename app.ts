@@ -231,10 +231,10 @@ app.get('/api/pay/wx_pay/create_h5_pay', (req, res) => {
     let pay = new Wx_pay_h5();
     let spbill_create_ip = req.connection.remoteAddress.replace(/::ffff:/, '')
 
-    let attach = req.query.attach || 'test';
-    let body = req.query.body || 'ddd';
-    let out_trade_no = req.query.out_trade_no || 'BM1569416408963';
-    let total_fee = req.query.total_fee || 0.1;
+    let attach = req.query.attach;
+    let body = req.query.body;
+    let out_trade_no = req.query.out_trade_no;
+    let total_fee = req.query.total_fee;
 
     pay.createH5Pay({
         attach: attach,
@@ -267,7 +267,7 @@ app.post('/api/pay/wx_pay/h5pay/notifyUrl', function (req, res) {
 });
 // h5支付： 订单查询
 app.get('/api/pay/wx_pay/orderQuery', (req, res) => {
-    let out_trade_no = req.query.out_trade_no || 'BM1569416408963';
+    let out_trade_no = req.query.out_trade_no;
     let pay = new Wx_pay_h5();
     pay.orderQuery({out_trade_no: out_trade_no}).then(data => {
         console.log('order query：');
