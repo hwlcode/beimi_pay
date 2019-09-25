@@ -58,8 +58,8 @@ app.get('/api/pay/wx_pay/order', function (req, res) {
 // 公众号支付: 公众号订单回调
 app.post('/api/pay/wx_pay/notifyUrl', function (req, res) {
     var notifyObj = req.body.xml;
-    console.log('gong zhong hao notify');
-    console.log(notifyObj);
+    // console.log('gong zhong hao notify');
+    // console.log(notifyObj);
     if (notifyObj.result_code[0] == 'SUCCESS') {
         var xml = '<xml>';
         xml += '<return_code><![CDATA[SUCCESS]]></return_code>';
