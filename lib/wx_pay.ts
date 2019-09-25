@@ -84,7 +84,50 @@ export class WechatPay {
         })
     }
 
+    /**
+     * 查询订单参数
+     */
+    getOrderQueryParams(obj) {
+        let body = '<xml> ' +
+            '<appid>' + config.wxappid + '</appid> ' +
+            '<mch_id>' + config.mch_id + '</mch_id> ' +
+            '<nonce_str>' + obj.nonce_str + '</nonce_str> ' +
+            '<out_trade_no>' + obj.out_trade_no + '</out_trade_no>' +
+            '<sign>' + obj.sign + '</sign> ' +
+            '</xml>';
+        // console.log(body);
+        return body;
+    }
 
+    // 微信查询订单
+    orderQuery(obj) {
+        let self = this;
+        let nonce_str = this.createNonceStr();
+
+        const signParams = {
+            appid: config.wxappid,
+            mch_id: config.mch_id,
+            nonce_str: nonce_str,
+            out_trade_no: obj.out_trade_no,  // 传入
+        };
+        signParams['sign'] = this.getSign(signParams);
+        return new Promise(function (resolve, reject) {
+            let url = 'https://api.mch.weixin.qq.com/pay/orderquery';
+            request.post({
+                url: url,
+                body: JSON.stringify(self.getOrderQueryParams(signParams))
+            }, function (error, response, body) {
+                if (!error && response.statusCode == 200) {
+                    xml2jsparseString(body, {async: true}, function (error, result) {
+                        // console.log(result.xml);
+                        resolve(result.xml);
+                    });
+                } else {
+                    reject(body);
+                }
+            });
+        });
+    }
 
     /**
      * 微信支付的所有参数
