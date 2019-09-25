@@ -74,7 +74,7 @@ export class Wx_pay_h5 {
                 if (!error && response.statusCode == 200) {
                     // 微信返回的数据为 xml 格式， 需要装换为 json 数据， 便于使用
                     xml2jsparseString(body, {async: true}, function (error, result) {
-                        console.log(result.xml);
+                        // console.log(result.xml);
                         // 放回数组的第一个元素
                         resolve(result.xml);
                     });
