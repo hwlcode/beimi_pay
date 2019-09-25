@@ -57,19 +57,8 @@ app.get('/api/pay/wx_pay/order', function (req, res) {
 });
 // 公众号支付: 公众号订单回调
 app.post('/api/pay/wx_pay/notifyUrl', function (req, res) {
-    console.log(res);
-    // let pay = new WechatPay();
-    //     // let notifyObj = req.body.xml;
-    //     // let signObj = {};
-    //     //
-    //     // for (let attr in notifyObj) {
-    //     //     if (attr != 'sign') {
-    //     //         signObj[attr] = notifyObj[attr][0]
-    //     //     }
-    //     // }
-    //     // console.log(pay.getSign(signObj));
-    //     // console.log('--------------------------');
-    //     // console.log(req.body.xml.sign[0]);
+    var notifyObj = req.body.xml;
+    console.log(notifyObj);
 });
 // 公众号支付: 订单查询
 app.get('/api/pay/wx_pay/public/orderQuery', function (req, res) {
@@ -140,19 +129,8 @@ app.get('/api/pay/wx_pay/create_scanQR', function (req, res) {
 });
 // 二维码支付：扫码支付成功后回调
 app.post('/api/pay/wx_pay/scanQR/notifyUrl', function (req, res) {
-    console.log(res);
-    // let pay = new WechatPay();
-    //     // let notifyObj = req.body.xml;
-    //     // let signObj = {};
-    //     //
-    //     // for (let attr in notifyObj) {
-    //     //     if (attr != 'sign') {
-    //     //         signObj[attr] = notifyObj[attr][0]
-    //     //     }
-    //     // }
-    //     // console.log(pay.getSign(signObj));
-    //     // console.log('--------------------------');
-    //     // console.log(req.body.xml.sign[0]);
+    var notifyObj = req.body.xml;
+    console.log(notifyObj);
 });
 // 二维码支付: 订单查询
 app.get('/api/pay/wx_pay/scanQR/orderQuery', function (req, res) {
@@ -221,19 +199,8 @@ app.get('/api/pay/wx_pay/create_h5_pay', function (req, res) {
 });
 // h5支付： 支付成功回调
 app.post('/api/pay/wx_pay/h5pay/notifyUrl', function (req, res) {
-    console.log(res);
-    // let pay = new WechatPay();
-    //     // let notifyObj = req.body.xml;
-    //     // let signObj = {};
-    //     //
-    //     // for (let attr in notifyObj) {
-    //     //     if (attr != 'sign') {
-    //     //         signObj[attr] = notifyObj[attr][0]
-    //     //     }
-    //     // }
-    //     // console.log(pay.getSign(signObj));
-    //     // console.log('--------------------------');
-    //     // console.log(req.body.xml.sign[0]);
+    var notifyObj = req.body.xml;
+    console.log(notifyObj);
 });
 // h5支付： 订单查询
 app.get('/api/pay/wx_pay/orderquery', function (req, res) {
