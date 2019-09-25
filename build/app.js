@@ -228,7 +228,8 @@ app.get('/api/pay/wx_pay/create_h5_pay', function (req, res) {
 // h5支付： 支付成功回调
 app.post('/api/pay/wx_pay/h5pay/notifyUrl', function (req, res) {
     var notifyObj = req.body.xml;
-    console.log('h5回调：' + notifyObj);
+    console.log('h5 notify：');
+    console.log(notifyObj);
     if (notifyObj.result_code[0] == 'SUCCESS') {
         var xml = '<xml>';
         xml += '<return_code><![CDATA[SUCCESS]]></return_code>';
@@ -249,7 +250,8 @@ app.get('/api/pay/wx_pay/orderQuery', function (req, res) {
     var out_trade_no = req.query.out_trade_no;
     var pay = new wx_pay_h5_1.Wx_pay_h5();
     pay.orderQuery({ out_trade_no: out_trade_no }).then(function (data) {
-        console.log('订单查询：' + data);
+        console.log('order query：');
+        console.log(data);
         var result_code = data['result_code'][0];
         if (result_code == 'SUCCESS') {
             // 订单存在
