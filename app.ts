@@ -29,7 +29,7 @@ app.get('/api/pay/wx_pay/getOpenId', function (req, res) {
     let pay = new WechatPay();
     //openid
     pay.getAccessToken(code, function (err, data) {
-        console.log(data);
+        // console.log(data);
         res.json(data);
     })
 });
@@ -54,13 +54,14 @@ app.get('/api/pay/wx_pay/order', function (req, res) {
         if (error) {
             console.log(error);
         }
-        console.log(responseData);
+        // console.log(responseData);
         res.json(responseData); /*签名字段*/
     });
 });
 // 公众号支付: 公众号订单回调
 app.post('/api/pay/wx_pay/notifyUrl', function (req, res) {
     let notifyObj = req.body.xml;
+    console.log('gong zhong hao notify');
     console.log(notifyObj);
     if (notifyObj.result_code[0] == 'SUCCESS') {
         let xml = '<xml>';
