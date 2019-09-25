@@ -59,6 +59,20 @@ app.get('/api/pay/wx_pay/order', function (req, res) {
 app.post('/api/pay/wx_pay/notifyUrl', function (req, res) {
     var notifyObj = req.body.xml;
     console.log(notifyObj);
+    if (notifyObj.result_code[0] == 'SUCCESS') {
+        var xml = '<xml>';
+        xml += '<return_code><![CDATA[SUCCESS]]></return_code>';
+        xml += '<return_msg><![CDATA[OK]]></return_msg>';
+        xml += '</xml>';
+        res.send(xml);
+    }
+    else if (notifyObj.result_code[0] == 'FAIL') {
+        var xml = '<xml>';
+        xml += '<return_code><![CDATA[SUCCESS]]></return_code>';
+        xml += '<return_msg><![CDATA[FAIL]]></return_msg>';
+        xml += '</xml>';
+        res.send(xml);
+    }
 });
 // 公众号支付: 订单查询
 app.get('/api/pay/wx_pay/public/orderQuery', function (req, res) {
@@ -113,7 +127,7 @@ app.get('/api/pay/wx_pay/create_scanQR', function (req, res) {
     var spbill_create_ip = req.connection.remoteAddress.replace(/::ffff:/, '');
     var attach = req.query.attach || 'test';
     var body = req.query.body || 'ddd';
-    var out_trade_no = req.query.out_trade_no || '22223';
+    var out_trade_no = req.query.out_trade_no || new Date().getTime();
     var total_fee = req.query.total_fee || 0.1;
     pay.createScanQR({
         attach: attach,
@@ -131,6 +145,20 @@ app.get('/api/pay/wx_pay/create_scanQR', function (req, res) {
 app.post('/api/pay/wx_pay/scanQR/notifyUrl', function (req, res) {
     var notifyObj = req.body.xml;
     console.log(notifyObj);
+    if (notifyObj.result_code[0] == 'SUCCESS') {
+        var xml = '<xml>';
+        xml += '<return_code><![CDATA[SUCCESS]]></return_code>';
+        xml += '<return_msg><![CDATA[OK]]></return_msg>';
+        xml += '</xml>';
+        res.send(xml);
+    }
+    else if (notifyObj.result_code[0] == 'FAIL') {
+        var xml = '<xml>';
+        xml += '<return_code><![CDATA[SUCCESS]]></return_code>';
+        xml += '<return_msg><![CDATA[FAIL]]></return_msg>';
+        xml += '</xml>';
+        res.send(xml);
+    }
 });
 // 二维码支付: 订单查询
 app.get('/api/pay/wx_pay/scanQR/orderQuery', function (req, res) {
@@ -201,6 +229,20 @@ app.get('/api/pay/wx_pay/create_h5_pay', function (req, res) {
 app.post('/api/pay/wx_pay/h5pay/notifyUrl', function (req, res) {
     var notifyObj = req.body.xml;
     console.log(notifyObj);
+    if (notifyObj.result_code[0] == 'SUCCESS') {
+        var xml = '<xml>';
+        xml += '<return_code><![CDATA[SUCCESS]]></return_code>';
+        xml += '<return_msg><![CDATA[OK]]></return_msg>';
+        xml += '</xml>';
+        res.send(xml);
+    }
+    else if (notifyObj.result_code[0] == 'FAIL') {
+        var xml = '<xml>';
+        xml += '<return_code><![CDATA[SUCCESS]]></return_code>';
+        xml += '<return_msg><![CDATA[FAIL]]></return_msg>';
+        xml += '</xml>';
+        res.send(xml);
+    }
 });
 // h5支付： 订单查询
 app.get('/api/pay/wx_pay/orderquery', function (req, res) {

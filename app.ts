@@ -62,6 +62,19 @@ app.get('/api/pay/wx_pay/order', function (req, res) {
 app.post('/api/pay/wx_pay/notifyUrl', function (req, res) {
     let notifyObj = req.body.xml;
     console.log(notifyObj);
+    if (notifyObj.result_code[0] == 'SUCCESS') {
+        let xml = '<xml>';
+        xml += '<return_code><![CDATA[SUCCESS]]></return_code>';
+        xml += '<return_msg><![CDATA[OK]]></return_msg>';
+        xml += '</xml>';
+        res.send(xml);
+    } else if (notifyObj.result_code[0] == 'FAIL') {
+        let xml = '<xml>';
+        xml += '<return_code><![CDATA[SUCCESS]]></return_code>';
+        xml += '<return_msg><![CDATA[FAIL]]></return_msg>';
+        xml += '</xml>';
+        res.send(xml);
+    }
 });
 // 公众号支付: 订单查询
 app.get('/api/pay/wx_pay/public/orderQuery', (req, res) => {
@@ -70,10 +83,10 @@ app.get('/api/pay/wx_pay/public/orderQuery', (req, res) => {
     pay.orderQuery({out_trade_no: out_trade_no}).then(data => {
         // console.log(data);
         let result_code = data['result_code'][0];
-        if(result_code == 'SUCCESS'){
+        if (result_code == 'SUCCESS') {
             // 订单存在
             let trade_state = data['trade_state'][0];
-            if(trade_state == 'SUCCESS'){
+            if (trade_state == 'SUCCESS') {
                 // 交易成功
                 res.json({
                     code: 200,
@@ -85,7 +98,7 @@ app.get('/api/pay/wx_pay/public/orderQuery', (req, res) => {
                         time_end: data['time_end'][0]
                     }
                 });
-            }else{
+            } else {
                 // 交易失败
                 let trade_state_desc = data['trade_state_desc'][0];
                 res.json({
@@ -94,7 +107,7 @@ app.get('/api/pay/wx_pay/public/orderQuery', (req, res) => {
                     msg: trade_state_desc
                 });
             }
-        }else if(result_code == 'FAIL'){
+        } else if (result_code == 'FAIL') {
             // 订单不存在
             let err_code_des = data['err_code_des'][0];
             res.json({
@@ -117,7 +130,7 @@ app.get('/api/pay/wx_pay/create_scanQR', (req, res) => {
 
     let attach = req.query.attach || 'test';
     let body = req.query.body || 'ddd';
-    let out_trade_no = req.query.out_trade_no || '22223';
+    let out_trade_no = req.query.out_trade_no || new Date().getTime();
     let total_fee = req.query.total_fee || 0.1;
 
     pay.createScanQR({
@@ -136,6 +149,19 @@ app.get('/api/pay/wx_pay/create_scanQR', (req, res) => {
 app.post('/api/pay/wx_pay/scanQR/notifyUrl', function (req, res) {
     let notifyObj = req.body.xml;
     console.log(notifyObj);
+    if (notifyObj.result_code[0] == 'SUCCESS') {
+        let xml = '<xml>';
+        xml += '<return_code><![CDATA[SUCCESS]]></return_code>';
+        xml += '<return_msg><![CDATA[OK]]></return_msg>';
+        xml += '</xml>';
+        res.send(xml);
+    } else if (notifyObj.result_code[0] == 'FAIL') {
+        let xml = '<xml>';
+        xml += '<return_code><![CDATA[SUCCESS]]></return_code>';
+        xml += '<return_msg><![CDATA[FAIL]]></return_msg>';
+        xml += '</xml>';
+        res.send(xml);
+    }
 });
 // 二维码支付: 订单查询
 app.get('/api/pay/wx_pay/scanQR/orderQuery', (req, res) => {
@@ -144,10 +170,10 @@ app.get('/api/pay/wx_pay/scanQR/orderQuery', (req, res) => {
     pay.orderQuery({out_trade_no: out_trade_no}).then(data => {
         // console.log(data);
         let result_code = data['result_code'][0];
-        if(result_code == 'SUCCESS'){
+        if (result_code == 'SUCCESS') {
             // 订单存在
             let trade_state = data['trade_state'][0];
-            if(trade_state == 'SUCCESS'){
+            if (trade_state == 'SUCCESS') {
                 // 交易成功
                 res.json({
                     code: 200,
@@ -159,7 +185,7 @@ app.get('/api/pay/wx_pay/scanQR/orderQuery', (req, res) => {
                         time_end: data['time_end'][0]
                     }
                 });
-            }else{
+            } else {
                 // 交易失败
                 let trade_state_desc = data['trade_state_desc'][0];
                 res.json({
@@ -168,7 +194,7 @@ app.get('/api/pay/wx_pay/scanQR/orderQuery', (req, res) => {
                     msg: trade_state_desc
                 });
             }
-        }else if(result_code == 'FAIL'){
+        } else if (result_code == 'FAIL') {
             // 订单不存在
             let err_code_des = data['err_code_des'][0];
             res.json({
@@ -208,6 +234,19 @@ app.get('/api/pay/wx_pay/create_h5_pay', (req, res) => {
 app.post('/api/pay/wx_pay/h5pay/notifyUrl', function (req, res) {
     let notifyObj = req.body.xml;
     console.log(notifyObj);
+    if (notifyObj.result_code[0] == 'SUCCESS') {
+        let xml = '<xml>';
+        xml += '<return_code><![CDATA[SUCCESS]]></return_code>';
+        xml += '<return_msg><![CDATA[OK]]></return_msg>';
+        xml += '</xml>';
+        res.send(xml);
+    } else if (notifyObj.result_code[0] == 'FAIL') {
+        let xml = '<xml>';
+        xml += '<return_code><![CDATA[SUCCESS]]></return_code>';
+        xml += '<return_msg><![CDATA[FAIL]]></return_msg>';
+        xml += '</xml>';
+        res.send(xml);
+    }
 });
 // h5支付： 订单查询
 app.get('/api/pay/wx_pay/orderquery', (req, res) => {
@@ -216,10 +255,10 @@ app.get('/api/pay/wx_pay/orderquery', (req, res) => {
     pay.orderQuery({out_trade_no: out_trade_no}).then(data => {
         // console.log(data);
         let result_code = data['result_code'][0];
-        if(result_code == 'SUCCESS'){
+        if (result_code == 'SUCCESS') {
             // 订单存在
             let trade_state = data['trade_state'][0];
-            if(trade_state == 'SUCCESS'){
+            if (trade_state == 'SUCCESS') {
                 // 交易成功
                 res.json({
                     code: 200,
@@ -231,7 +270,7 @@ app.get('/api/pay/wx_pay/orderquery', (req, res) => {
                         time_end: data['time_end'][0]
                     }
                 });
-            }else{
+            } else {
                 // 交易失败
                 let trade_state_desc = data['trade_state_desc'][0];
                 res.json({
@@ -240,7 +279,7 @@ app.get('/api/pay/wx_pay/orderquery', (req, res) => {
                     msg: trade_state_desc
                 });
             }
-        }else if(result_code == 'FAIL'){
+        } else if (result_code == 'FAIL') {
             // 订单不存在
             let err_code_des = data['err_code_des'][0];
             res.json({
@@ -253,7 +292,6 @@ app.get('/api/pay/wx_pay/orderquery', (req, res) => {
         console.log(error);
     })
 });
-
 
 
 app.listen(5271, function () {
