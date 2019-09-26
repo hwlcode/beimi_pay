@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 //引入统一下单的api
-var wx_pay_1 = require("./lib/wx_pay");
+var wx_pay_jsapi_1 = require("./lib/wx_pay_jsapi");
 var wx_pay_scan_qr_1 = require("./lib/wx_pay_scan_qr");
 var wx_pay_h5_1 = require("./lib/wx_pay_h5");
 var express = require("express");
@@ -24,7 +24,7 @@ app.all('*', function (req, res, next) {
 // 公众号支付: 通过code获取openid返回客户端
 app.get('/api/pay/wx_pay/getOpenId', function (req, res) {
     var code = req.query.code;
-    var pay = new wx_pay_1.WechatPay();
+    var pay = new wx_pay_jsapi_1.WechatPay();
     //openid
     pay.getAccessToken(code, function (err, data) {
         // console.log(data);
@@ -38,7 +38,7 @@ app.get('/api/pay/wx_pay/order', function (req, res) {
     var body = req.query.body;
     var total_fee = req.query.total_fee;
     var out_trade_no = req.query.out_trade_no;
-    var pay = new wx_pay_1.WechatPay();
+    var pay = new wx_pay_jsapi_1.WechatPay();
     pay.createOrder({
         openid: openid,
         notify_url: 'http://beimi.welcometo5g.cn/api/pay/wx_pay/notifyUrl',
@@ -78,7 +78,7 @@ app.post('/api/pay/wx_pay/notifyUrl', function (req, res) {
 // 公众号支付: 订单查询
 app.get('/api/pay/wx_pay/public/orderQuery', function (req, res) {
     var out_trade_no = req.query.out_trade_no;
-    var pay = new wx_pay_1.WechatPay();
+    var pay = new wx_pay_jsapi_1.WechatPay();
     pay.orderQuery({ out_trade_no: out_trade_no }).then(function (data) {
         // console.log(data);
         if (data['return_code'][0] == 'FAIL') {

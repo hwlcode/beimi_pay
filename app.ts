@@ -1,5 +1,5 @@
 //引入统一下单的api
-import {WechatPay} from './lib/wx_pay';
+import {WechatPay} from './lib/wx_pay_jsapi';
 import {Wx_pay_scan_qr} from './lib/wx_pay_scan_qr';
 import {Wx_pay_h5} from "./lib/wx_pay_h5";
 import * as express from 'express';
