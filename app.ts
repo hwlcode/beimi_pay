@@ -273,7 +273,7 @@ app.get('/api/pay/wx_pay/orderQuery', (req, res) => {
     let pay = new Wx_pay_h5();
     pay.orderQuery({out_trade_no: out_trade_no}).then(data => {
         // console.log('order query：');
-        // console.log(data);
+        console.log(data);
         res.json(data);
         // if(data['return_code'][0] == 'FAIL'){
         //     res.json({
